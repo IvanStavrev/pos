@@ -8295,162 +8295,188 @@ const Yo = new Bf,
     },
     Hf = () => {
         const {
-            currentUser: e,
-            orders: t,
-            products: n,
-            updateOrderItemStatus: r,
-            logout: l
-        } = xn(), [s, i] = $.useState("pending"), u = t.filter(y => y.status === "active" && y.items.some(L => {
-            const a = n.find(d => d.id === L.product_id);
-            console.log("Item:", L, "Matched product:", a);
-            return a && a.bar_item
-        })), f = (() => {
-            const y = [];
-            return u.forEach(L => {
-                L.items.forEach(a => {
-                    const d = n.find(p => p.id === a.product_id);
-                    d && d.bar_item && y.push({
-                        ...a,
-                        orderId: L.id,
-                        tableNumber: L.table_id,
-                        productName: d.name,
-                        waiterName: L.waiter_id === 2 ? "John Doe" : "Jane Smith"
-                    })
-                })
-            }), y
-        })(), g = s === "all" ? f : f.filter(y => y.status === s), h = (y, L, a) => {
-            r(y, L, a)
-        }, m = y => {
-            switch (y) {
-                case "pending":
-                    return "bg-yellow-100 text-yellow-800 border-yellow-200";
-                case "ready":
-                    return "bg-green-100 text-green-800 border-green-200";
-                case "served":
-                    return "bg-gray-100 text-gray-800 border-gray-200";
-                default:
-                    return "bg-gray-100 text-gray-800 border-gray-200"
-            }
-        }, N = f.filter(y => y.status === "pending").length, S = f.filter(y => y.status === "ready").length;
-        return o.jsxs("div", {
-            className: "min-h-screen bg-gray-50",
-            children: [o.jsxs("div", {
+        currentUser,
+        orders,
+        updateOrderItemStatus,
+        logout
+    } = xn();
+
+    const [filter, setFilter] = $.useState("pending");
+
+    // Filter only active bar orders
+    const barOrders = orders.filter(order =>
+        order.status === "active" &&
+        order.items.some(item => item.bar_item == 1)
+    );
+
+    // Flatten items for display
+    const items = (() => {
+        const arr = [];
+        barOrders.forEach(order => {
+            order.items.forEach(item => {
+                if (item.bar_item == 1) {
+                    arr.push({
+                        ...item,
+                        orderId: order.id,
+                        tableNumber: order.table_id,
+                        waiterName: order.waiter_id === 2 ? "John Doe" : "Jane Smith"
+                    });
+                }
+            });
+        });
+        return arr;
+    })();
+
+    const filteredItems = filter === "all" ? items : items.filter(item => item.status === filter);
+
+    // Status badge classes
+    const statusClass = (status) => {
+        switch (status) {
+            case "pending":
+                return "bg-yellow-100 text-yellow-800 border-yellow-200";
+            case "ready":
+                return "bg-green-100 text-green-800 border-green-200";
+            case "served":
+                return "bg-gray-100 text-gray-800 border-gray-200";
+            default:
+                return "bg-gray-100 text-gray-800 border-gray-200";
+        }
+    };
+
+    // Count by status
+    const pendingCount = items.filter(item => item.status === "pending").length;
+    const readyCount = items.filter(item => item.status === "ready").length;
+
+    return o.jsxs("div", {
+        className: "min-h-screen bg-gray-50",
+        children: [
+            // Header
+            o.jsxs("div", {
                 className: "bg-white shadow-sm border-b",
-                children: [o.jsxs("div", {
-                    className: "flex items-center justify-between p-4",
-                    children: [o.jsxs("div", {
-                        className: "flex items-center space-x-4",
-                        children: [o.jsx("h1", {
-                            className: "text-2xl font-bold text-gray-800",
-                            children: "Bar Dashboard"
-                        }), o.jsxs("span", {
-                            className: "text-sm text-gray-600",
-                            children: ["Welcome, ", e == null ? void 0 : e.name]
-                        })]
-                    }), o.jsx("button", {
-                        onClick: l,
-                        className: "px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700",
-                        children: "Logout"
-                    })]
-                }), o.jsxs("div", {
-                    className: "flex items-center space-x-6 px-4 py-3 bg-gray-50 border-t",
-                    children: [o.jsxs("div", {
-                        className: "flex items-center space-x-2",
-                        children: [o.jsx("div", {
-                            className: "w-3 h-3 bg-yellow-400 rounded-full"
-                        }), o.jsxs("span", {
-                            className: "text-sm font-medium",
-                            children: ["Pending: ", N]
-                        })]
-                    }), o.jsxs("div", {
-                        className: "flex items-center space-x-2",
-                        children: [o.jsx("div", {
-                            className: "w-3 h-3 bg-green-400 rounded-full"
-                        }), o.jsxs("span", {
-                            className: "text-sm font-medium",
-                            children: ["Ready: ", S]
-                        })]
-                    })]
-                })]
-            }), o.jsxs("div", {
-                className: "p-6",
-                children: [o.jsx("div", {
-                    className: "mb-6",
-                    children: o.jsxs("div", {
-                        className: "flex space-x-1 bg-gray-200 rounded-lg p-1",
-                        children: [o.jsxs("button", {
-                            onClick: () => i("pending"),
-                            className: `px-4 py-2 rounded-md font-medium transition-colors ${s==="pending"?"bg-white text-gray-800 shadow-sm":"text-gray-600 hover:text-gray-800"}`,
-                            children: ["Pending (", N, ")"]
-                        }), o.jsxs("button", {
-                            onClick: () => i("ready"),
-                            className: `px-4 py-2 rounded-md font-medium transition-colors ${s==="ready"?"bg-white text-gray-800 shadow-sm":"text-gray-600 hover:text-gray-800"}`,
-                            children: ["Ready (", S, ")"]
-                        }), o.jsxs("button", {
-                            onClick: () => i("all"),
-                            className: `px-4 py-2 rounded-md font-medium transition-colors ${s==="all"?"bg-white text-gray-800 shadow-sm":"text-gray-600 hover:text-gray-800"}`,
-                            children: ["All (", f.length, ")"]
-                        })]
+                children: [
+                    o.jsxs("div", {
+                        className: "flex items-center justify-between p-4",
+                        children: [
+                            o.jsxs("div", {
+                                className: "flex items-center space-x-4",
+                                children: [
+                                    o.jsx("h1", { className: "text-2xl font-bold text-gray-800", children: "Bar Dashboard" }),
+                                    o.jsx("span", { className: "text-sm text-gray-600", children: `Welcome, ${currentUser?.name}` })
+                                ]
+                            }),
+                            o.jsx("button", {
+                                onClick: logout,
+                                className: "px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700",
+                                children: "Logout"
+                            })
+                        ]
+                    }),
+                    o.jsxs("div", {
+                        className: "flex items-center space-x-6 px-4 py-3 bg-gray-50 border-t",
+                        children: [
+                            o.jsxs("div", { className: "flex items-center space-x-2", children: [o.jsx("div", { className: "w-3 h-3 bg-yellow-400 rounded-full" }), o.jsxs("span", { className: "text-sm font-medium", children: ["Pending: ", pendingCount] })] }),
+                            o.jsxs("div", { className: "flex items-center space-x-2", children: [o.jsx("div", { className: "w-3 h-3 bg-green-400 rounded-full" }), o.jsxs("span", { className: "text-sm font-medium", children: ["Ready: ", readyCount] })] })
+                        ]
                     })
-                }), g.length === 0 ? o.jsxs("div", {
-                    className: "text-center py-12",
-                    children: [o.jsx("div", {
-                        className: "text-6xl mb-4",
-                        children: "🍹"
-                    }), o.jsx("h3", {
-                        className: "text-lg font-medium text-gray-800 mb-2",
-                        children: "No bar orders"
-                    }), o.jsxs("p", {
-                        className: "text-gray-600",
-                        children: [s === "pending" && "No pending orders at the moment", s === "ready" && "No orders ready to serve", s === "all" && "No bar orders available"]
-                    })]
-                }) : o.jsx("div", {
-                    className: "grid gap-4",
-                    children: g.map(y => o.jsxs("div", {
-                        className: "bg-white rounded-lg shadow-sm border p-6",
-                        children: [o.jsxs("div", {
-                            className: "flex items-start justify-between mb-4",
-                            children: [o.jsxs("div", {
-                                children: [o.jsx("h3", {
-                                    className: "text-lg font-semibold text-gray-800 mb-1",
-                                    children: y.productName
-                                }), o.jsxs("div", {
-                                    className: "flex items-center space-x-4 text-sm text-gray-600",
-                                    children: [o.jsxs("span", {
-                                        children: ["Table ", y.tableNumber]
-                                    }), o.jsxs("span", {
-                                        children: ["Qty: ", y.quantity]
-                                    }), o.jsxs("span", {
-                                        children: ["Waiter: ", y.waiterName]
-                                    })]
-                                })]
-                            }), o.jsx("div", {
-                                className: "flex items-center space-x-3",
-                                children: o.jsx("span", {
-                                    className: `px-3 py-1 rounded-full text-xs font-medium border ${m(y.status)}`,
-                                    children: y.status.charAt(0).toUpperCase() + y.status.slice(1)
-                                })
-                            })]
-                        }), o.jsxs("div", {
-                            className: "flex justify-end space-x-2",
-                            children: [y.status === "pending" && o.jsx("button", {
-                                onClick: () => h(y.orderId, y.id, "ready"),
-                                className: "px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium",
-                                children: "Mark as Ready"
-                            }), y.status === "ready" && o.jsx("button", {
-                                onClick: () => h(y.orderId, y.id, "served"),
-                                className: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium",
-                                children: "Mark as Served"
-                            }), y.status === "served" && o.jsx("span", {
-                                className: "px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-medium",
-                                children: "Completed"
-                            })]
-                        })]
-                    }, `${y.orderId}-${y.id}`))
-                })]
-            })]
-        })
-    },
+                ]
+            }),
+            // Filters and Orders
+            o.jsxs("div", {
+                className: "p-6",
+                children: [
+                    // Filter buttons
+                    o.jsxs("div", {
+                        className: "mb-6",
+                        children: [
+                            o.jsxs("div", {
+                                className: "flex space-x-1 bg-gray-200 rounded-lg p-1",
+                                children: [
+                                    o.jsxs("button", {
+                                        onClick: () => setFilter("pending"),
+                                        className: `px-4 py-2 rounded-md font-medium transition-colors ${filter === "pending" ? "bg-white text-gray-800 shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
+                                        children: ["Pending (", pendingCount, ")"]
+                                    }),
+                                    o.jsxs("button", {
+                                        onClick: () => setFilter("ready"),
+                                        className: `px-4 py-2 rounded-md font-medium transition-colors ${filter === "ready" ? "bg-white text-gray-800 shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
+                                        children: ["Ready (", readyCount, ")"]
+                                    }),
+                                    o.jsxs("button", {
+                                        onClick: () => setFilter("all"),
+                                        className: `px-4 py-2 rounded-md font-medium transition-colors ${filter === "all" ? "bg-white text-gray-800 shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
+                                        children: ["All (", items.length, ")"]
+                                    })
+                                ]
+                            })
+                        ]
+                    }),
+                    // No orders message
+                    filteredItems.length === 0 ? o.jsxs("div", {
+                        className: "text-center py-12",
+                        children: [
+                            o.jsx("div", { className: "text-6xl mb-4", children: "🍹" }),
+                            o.jsx("h3", { className: "text-lg font-medium text-gray-800 mb-2", children: "No bar orders" }),
+                            o.jsxs("p", { className: "text-gray-600", children: [filter === "pending" && "No pending orders at the moment", filter === "ready" && "No orders ready to serve", filter === "all" && "No bar orders available"] })
+                        ]
+                    }) :
+                        // Orders list
+                        o.jsx("div", {
+                            className: "grid gap-4",
+                            children: filteredItems.map(item => o.jsxs("div", {
+                                className: "bg-white rounded-lg shadow-sm border p-6",
+                                children: [
+                                    o.jsxs("div", {
+                                        className: "flex items-start justify-between mb-4",
+                                        children: [
+                                            o.jsxs("div", {
+                                                children: [
+                                                    o.jsx("h3", { className: "text-lg font-semibold text-gray-800 mb-1", children: item.productName }),
+                                                    o.jsxs("div", {
+                                                        className: "flex items-center space-x-4 text-sm text-gray-600",
+                                                        children: [
+                                                            o.jsxs("span", { children: ["Table ", item.tableNumber] }),
+                                                            o.jsxs("span", { children: ["Qty: ", item.quantity] }),
+                                                            o.jsxs("span", { children: ["Waiter: ", item.waiterName] })
+                                                        ]
+                                                    })
+                                                ]
+                                            }),
+                                            o.jsx("div", {
+                                                className: "flex items-center space-x-3",
+                                                children: o.jsx("span", {
+                                                    className: `px-3 py-1 rounded-full text-xs font-medium border ${statusClass(item.status)}`,
+                                                    children: item.status.charAt(0).toUpperCase() + item.status.slice(1)
+                                                })
+                                            })
+                                        ]
+                                    }),
+                                    o.jsxs("div", {
+                                        className: "flex justify-end space-x-2",
+                                        children: [
+                                            item.status === "pending" && o.jsx("button", {
+                                                onClick: () => updateOrderItemStatus(item.orderId, item.id, "ready"),
+                                                className: "px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium",
+                                                children: "Mark as Ready"
+                                            }),
+                                            item.status === "ready" && o.jsx("button", {
+                                                onClick: () => updateOrderItemStatus(item.orderId, item.id, "served"),
+                                                className: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium",
+                                                children: "Mark as Served"
+                                            }),
+                                            item.status === "served" && o.jsx("span", {
+                                                className: "px-4 py-2 bg-gray-100 text-gray-600 rounded-lg font-medium",
+                                                children: "Completed"
+                                            })
+                                        ]
+                                    })
+                                ]
+                            }, `${item.orderId}-${item.id}`))
+                        })
+                ]
+            })
+        ]
+    })
+},
     Qf = () => {
         const {
             currentUser: e,
