@@ -144,7 +144,7 @@ function handleOrders($method, $id, $subResource, $subId) {
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Parse items JSON
-        foreach ($orders as &$order) {
+    foreach ($orders as &$order) {
             if ($order['items']) {
                 $order['items'] = json_decode('[' . $order['items'] . ']', true);
             } else {
@@ -153,6 +153,7 @@ function handleOrders($method, $id, $subResource, $subId) {
         }
         
         echo json_encode($orders);
+        
     } elseif ($method === 'POST' && !$id) {
         $input = json_decode(file_get_contents('php://input'), true);
         
@@ -173,14 +174,20 @@ function handleOrders($method, $id, $subResource, $subId) {
             
             // Add order items
             foreach ($input['items'] as $item) {
-                $stmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, price_bgn, price_eur, status) VALUES (?, ?, ?, ?, ?, ?)");
+                // Fetch bar_item flag from product
+                $productStmt = $pdo->prepare("SELECT bar_item FROM products WHERE id = ?");
+                $productStmt->execute([$item['product_id']]);
+                $bar_item = $productStmt->fetchColumn() ?? 0;
+
+                $stmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, price_bgn, price_eur, status, bar_item) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
                     $orderId,
                     $item['product_id'],
                     $item['quantity'],
                     $item['price_bgn'],
                     $item['price_eur'],
-                    $item['status']
+                    $item['status'],
+                    $bar_item
                 ]);
             }
             
@@ -195,7 +202,8 @@ function handleOrders($method, $id, $subResource, $subId) {
                                                   'quantity', oi.quantity,
                                                   'price_bgn', oi.price_bgn,
                                                   'price_eur', oi.price_eur,
-                                                  'status', oi.status
+                                                  'status', oi.status,
+                                                  'bar_item', oi.bar_item
                                               )
                                           ) as items
                                    FROM orders o
