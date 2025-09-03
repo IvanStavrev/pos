@@ -7991,12 +7991,14 @@ const Yo = new Bf,
                             })
                         })]
                     })]
-                }), a === "menu" && i && o.jsxs("div", {
+                }), 
+                console.log("Current B:", B),
+                a === "menu" && i && o.jsxs("div", {
                     children: [o.jsxs("div", {
                         className: "mb-6",
                         children: [o.jsxs("h2", {
                             className: "text-xl font-semibold text-gray-800 mb-2",
-                            children: ["Menu - Table ", i.number, i.status === "occupied" && o.jsx("span", {
+                            children: ["Menu - Table ", i.table_number, i.status === "occupied" && o.jsx("span", {
                                 className: "ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-sm rounded",
                                 children: "Adding to existing order"
                             })]
@@ -8040,10 +8042,6 @@ const Yo = new Bf,
                         className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
                         children: st.map(w => {
                             const W = Vt(w);
-                            /* Edit Ivan Stavrev 
-                            const result = O(w);
-                                console.log("Type of O(w):", typeof result);
-                                console.log("Value of O(w):", result);  */ 
                             return o.jsxs("button", {
                                 onClick: () => wn(w),
                                 disabled: w.stock === 0,
@@ -8061,7 +8059,6 @@ const Yo = new Bf,
                                     className: "text-center mb-3",
                                     children: [o.jsx("span", {
                                         className: "text-2xl font-bold text-blue-600",
-                                        
                                         children: parseFloat(O(w)).toFixed(2) /* EDITIS */ 
                                     }), o.jsx("span", {
                                         className: "text-lg text-blue-600 ml-1",
@@ -8075,13 +8072,21 @@ const Yo = new Bf,
                                     })
                                 }), o.jsx("div", {
                                     className: "text-center text-sm text-gray-500",
-                                    children: w.stock > 0 ? `${w.stock} in stock` : "Out of stock"
+                                    children: w.stock > 0 ? `${w.stock} in stock` : "Out of stock da"
                                 }), w.stock > 0 && o.jsx("div", {
                                     className: "mt-4 flex justify-center",
                                     children: o.jsx("div", {
                                         className: "px-4 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm",
                                         children: "Add to Order"
                                     })
+                                }), o.jsxs("button", {
+                                    onClick: () => d("order"),
+                                    className: `px-6 py-3 font-medium ${a==="order"?"border-b-2 border-blue-500 text-blue-600":"text-gray-600 hover:text-gray-800"}`,
+                                    disabled: !B && c.length === 0,
+                                    children: ["Qty: ", B && `(${(($i=B.items)==null?void 0:$i.length)||0} items)`, c.length > 0 && o.jsxs("span", {
+                                        className: "ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full",
+                                        children: ["+", c.length, " new"]
+                                    })]
                                 })]
                             }, w.id)
                         })
@@ -8092,7 +8097,7 @@ const Yo = new Bf,
                         children: [o.jsxs("div", {
                             children: [o.jsxs("h2", {
                                 className: "text-xl font-semibold text-gray-800 mb-2",
-                                children: ["Order - Table ", i == null ? void 0 : i.number] /* Here */
+                                children: ["Order - Table ", i == null ? void 0 : i.table_number] /* Here */
                             }), o.jsx("p", {
                                 className: "text-gray-600",
                                 children: (i == null ? void 0 : i.status) === "occupied" ? "Existing order - you can add more items or process payment" : "Review and submit your order"
@@ -8117,42 +8122,69 @@ const Yo = new Bf,
                             })]
                         })]
                     }), B && B.items && B.items.length > 0 && o.jsxs("div", {
-                        className: "mb-8",
-                        children: [o.jsx("h3", {
-                            className: "text-lg font-semibold text-gray-800 mb-4",
-                            children: "Current Order Items"
-                        }), o.jsx("div", {
-                            className: "space-y-4",
-                            children: B.items.map(w => {
-                                const W = n.find(Et => Et.id === w.product_id);
-                                return W ? o.jsxs("div", {
-                                    className: "bg-white rounded-lg shadow-sm border p-4 flex items-center justify-between",
-                                    children: [o.jsxs("div", {
-                                        className: "flex-1",
-                                        children: [o.jsx("h3", {
-                                            className: "font-semibold text-gray-800",
-                                            children: W.name
-                                        }), o.jsxs("p", {
-                                            className: "text-sm text-gray-600",
-                                            children: ["Quantity: ", w.quantity, " × ", (parseFloat(u === "BGN" ? w.price_bgn : w.price_eur)).toFixed(2), " ", u] /*EDITIS*/
-                                        }), o.jsx("div", {
-                                            className: "flex items-center space-x-2 mt-1",
-                                            children: o.jsx("span", {
-                                                className: `px-2 py-1 text-xs rounded-full ${w.status==="pending"?"bg-yellow-100 text-yellow-800":w.status==="ready"?"bg-green-100 text-green-800":w.status==="served"?"bg-blue-100 text-blue-800":"bg-gray-100 text-gray-800"}`,
-                                                children: w.status.charAt(0).toUpperCase() + w.status.slice(1)
-                                            })
-                                        })]
-                                    }), o.jsx("div", {
-                                        className: "flex items-center space-x-4",
-                                        children: o.jsxs("span", {
-                                            className: "font-bold text-lg",
-                                            children: [((u === "BGN" ? w.price_bgn : w.price_eur) * w.quantity).toFixed(2), " ", u]
-                                        })
-                                    })]
-                                }, w.id) : null
+    className: "mb-8",
+    children: [
+        o.jsx("h3", {
+            className: "text-lg font-semibold text-gray-800 mb-4",
+            children: "Current Order Items"
+        }),
+        o.jsx("div", {
+            className: "space-y-4",
+            children: B.items.map(w => {
+                // Use product_name directly from backend
+                const productName = w.product_name || `Product #${w.product_id}`;
+                return o.jsxs("div", {
+                    className: "bg-white rounded-lg shadow-sm border p-4 flex items-center justify-between",
+                    children: [
+                        o.jsxs("div", {
+                            className: "flex-1",
+                            children: [
+                                o.jsx("h3", {
+                                    className: "font-semibold text-gray-800",
+                                    children: productName
+                                }),
+                                o.jsxs("p", {
+                                    className: "text-sm text-gray-600",
+                                    children: [
+                                        "Quantity: ",
+                                        w.quantity,
+                                        " × ",
+                                        (parseFloat(u === "BGN" ? w.price_bgn : w.price_eur)).toFixed(2),
+                                        " ",
+                                        u
+                                    ]
+                                }),
+                                o.jsx("div", {
+                                    className: "flex items-center space-x-2 mt-1",
+                                    children: o.jsx("span", {
+                                        className: `px-2 py-1 text-xs rounded-full ${
+                                            w.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                                            w.status === "ready" ? "bg-green-100 text-green-800" :
+                                            w.status === "served" ? "bg-blue-100 text-blue-800" :
+                                            "bg-gray-100 text-gray-800"
+                                        }`,
+                                        children: w.status.charAt(0).toUpperCase() + w.status.slice(1)
+                                    })
+                                })
+                            ]
+                        }),
+                        o.jsx("div", {
+                            className: "flex items-center space-x-4",
+                            children: o.jsxs("span", {
+                                className: "font-bold text-lg",
+                                children: [
+                                    ((u === "BGN" ? w.price_bgn : w.price_eur) * w.quantity).toFixed(2),
+                                    " ",
+                                    u
+                                ]
                             })
-                        })]
-                    }), c.length > 0 && o.jsxs("div", {
+                        })
+                    ]
+                }, w.id)
+            })
+        })
+    ]
+}), c.length > 0 && o.jsxs("div", {
                         className: "mb-8",
                         children: [o.jsxs("div", {
                             className: "flex justify-between items-center mb-4",
