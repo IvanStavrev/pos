@@ -124,21 +124,23 @@ function handleOrders($method, $id, $subResource, $subId) {
     
     if ($method === 'GET') {
         $sql = "SELECT o.*, 
-                       GROUP_CONCAT(
-                           JSON_OBJECT(
-                               'id', oi.id,
-                               'product_id', oi.product_id,
-                               'quantity', oi.quantity,
-                               'price_bgn', oi.price_bgn,
-                               'price_eur', oi.price_eur,
-                               'status', oi.status,
-                               'bar_item', oi.bar_item
-                           )
-                       ) as items
-                FROM orders o
-                LEFT JOIN order_items oi ON o.id = oi.order_id
-                GROUP BY o.id
-                ORDER BY o.created_at DESC";
+               GROUP_CONCAT(
+                   JSON_OBJECT(
+                       'id', oi.id,
+                       'product_id', oi.product_id,
+                       'quantity', oi.quantity,
+                       'price_bgn', oi.price_bgn,
+                       'price_eur', oi.price_eur,
+                       'status', oi.status,
+                       'bar_item', oi.bar_item,
+                       'product_name', p.name
+                   )
+               ) as items
+        FROM orders o
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        LEFT JOIN products p ON oi.product_id = p.id
+        GROUP BY o.id
+        ORDER BY o.created_at DESC";
         
         $stmt = $pdo->query($sql);
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -204,10 +206,12 @@ function handleOrders($method, $id, $subResource, $subId) {
                                                   'price_eur', oi.price_eur,
                                                   'status', oi.status,
                                                   'bar_item', oi.bar_item
+                                                  'product_name', p.name
                                               )
                                           ) as items
                                    FROM orders o
                                    LEFT JOIN order_items oi ON o.id = oi.order_id
+                                   LEFT JOIN products p ON oi.product_id = p.id
                                    WHERE o.id = ?
                                    GROUP BY o.id");
             $stmt->execute([$orderId]);
